@@ -1,0 +1,28 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}收款码设置 · 黑泡咖啡{% endblock %}
+{% block content %}
+<h1 class="admin-title">收款码设置</h1>
+<p class="admin-sub">上传微信 / 支付宝收款码，顾客支付页将即时展示。支持 png / jpg / webp / gif。</p>
+
+<div class="settings-grid">
+  <div class="card">
+    <h3>当前收款码</h3>
+    {% if qr %}
+    <img class="qr-preview" src="{{ url_for('static', filename='uploads/' ~ qr) }}?v={{ range(100000) | random }}" alt="当前收款码">
+    {% else %}
+    <div class="qr-placeholder small">
+      <div class="qr-placeholder-icon">▦</div>
+      <p>尚未上传收款码<br><small>支付页将显示「收款码配置中」占位提示</small></p>
+    </div>
+    {% endif %}
+  </div>
+  <div class="card">
+    <h3>上传新收款码</h3>
+    <form method="post" enctype="multipart/form-data" class="upload-form">
+      <input type="file" name="qr" accept="image/*" required>
+      <button class="btn btn-primary" type="submit">上传并生效</button>
+    </form>
+    <p class="form-tip">建议上传正方形、清晰的收款码截图；上传后无需重启，支付页即时生效。</p>
+  </div>
+</div>
+{% endblock %}

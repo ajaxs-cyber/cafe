@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}黑泡咖啡 HEYPOUR COFFEE{% endblock %}</title>
+  <meta name="description" content="黑泡咖啡——用音乐情绪匹配，让每一杯咖啡都有恰好的氛围。">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+<header class="site-header" id="siteHeader">
+  <div class="container header-inner">
+    <a class="brand" href="{{ url_for('index') }}">
+      <span class="brand-mark">黑泡</span>
+      <span class="brand-text">黑泡咖啡 <em>HEYPOUR COFFEE</em></span>
+    </a>
+    <nav class="site-nav" id="siteNav">
+      <a href="{{ url_for('index') }}#story">品牌理念</a>
+      <a href="{{ url_for('index') }}#products">本季商品</a>
+      <a href="{{ url_for('index') }}#music">门店音乐</a>
+      <a href="{{ url_for('track_page') }}">订单查询</a>
+      <button class="cart-btn" id="cartOpenBtn" type="button" aria-label="打开购物车">
+        🛍 购物袋 <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <div class="footer-brand">黑泡咖啡 <em>HEYPOUR COFFEE</em></div>
+      <p class="footer-note">一杯咖啡，一段恰好的音乐。<br>自烘焙精品咖啡 · 音乐陪伴空间</p>
+    </div>
+    <div>
+      <h4>到店</h4>
+      <p>每日 08:00 – 21:30<br>城南·梧桐里 27 号</p>
+    </div>
+    <div>
+      <h4>线上</h4>
+      <p><a href="{{ url_for('track_page') }}">订单查询</a><br>
+         <a href="{{ url_for('index') }}#music">门店音乐</a><br>
+         <a href="{{ url_for('admin_login') }}" class="muted-link">经营管理入口</a></p>
+    </div>
+  </div>
+  <div class="container footer-copy">© 2025 黑泡咖啡 HEYPOUR COFFEE · 一杯咖啡，一段恰好的音乐</div>
+</footer>
+
+<!-- 浮动音乐播放器（用户自主点击播放，默认关闭） -->
+<div class="music-player" id="musicPlayer">
+  <audio id="bgm" src="{{ url_for('static', filename='audio/ambient.mp3') }}" loop preload="none"></audio>
+  <button class="mp-toggle" id="mpToggle" type="button" aria-label="播放环境音乐">
+    <span class="mp-icon" id="mpIcon">♪</span>
+  </button>
+  <div class="mp-info">
+    <div class="mp-title">午后氛围 · 环境音乐</div>
+    <div class="mp-sub" id="mpStatus">轻点开启，伴随一段咖啡时光</div>
+  </div>
+  <button class="mp-close" id="mpClose" type="button" aria-label="关闭播放器">×</button>
+</div>
+
+<!-- 购物袋抽屉 -->
+<div class="drawer-mask" id="drawerMask"></div>
+<aside class="cart-drawer" id="cartDrawer" aria-label="购物袋">
+  <div class="drawer-head">
+    <h3>购物袋</h3>
+    <button class="drawer-close" id="cartCloseBtn" type="button">×</button>
+  </div>
+  <div class="drawer-body" id="cartItems"></div>
+  <div class="drawer-foot">
+    <div class="cart-total-row"><span>合计</span><strong id="cartTotal">¥0.00</strong></div>
+    <button class="btn btn-primary btn-block" id="checkoutBtn" type="button">去结算</button>
+  </div>
+</aside>
+
+<script src="{{ url_for('static', filename='js/player.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

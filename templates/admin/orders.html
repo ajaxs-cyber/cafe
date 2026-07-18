@@ -1,0 +1,60 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}订单管理 · 黑泡咖啡{% endblock %}
+{% block content %}
+<h1 class="admin-title">订单管理</h1>
+
+<div class="order-tabs">
+  <a href="{{ url_for('admin_orders') }}" class="{{ 'active' if not active }}">全部</a>
+  <a href="{{ url_for('admin_orders', status='pending') }}" class="{{ 'active' if active == 'pending' }}">
+    待确认 {% if counts.pending %}<span class="badge">{{ counts.pending }}</span>{% endif %}
+  </a>
+  <a href="{{ url_for('admin_orders', status='unpaid') }}" class="{{ 'active' if active == 'unpaid' }}">待支付</a>
+  <a href="{{ url_for('admin_orders', status='confirmed') }}" class="{{ 'active' if active == 'confirmed' }}">已发货</a>
+  <a href="{{ url_for('admin_orders', status='cancelled') }}" class="{{ 'active' if active == 'cancelled' }}">已取消</a>
+</div>
+
+{% if not orders %}
+<div class="empty-state">当前筛选下暂无订单。</div>
+{% endif %}
+
+{% for o in orders %}
+<div class="order-card {{ 'order-pending' if o.status == 'pending' }}">
+  <div class="order-head">
+    <div>
+      <span class="order-no">{{ o.order_no }}</span>
+      {% if o.status == 'pending' %}<span class="tail-badge">备注后4位：{{ o.tail4 }}</span>{% endif %}
+    </div>
+    <span class="status-pill status-{{ o.status }}">{{ ORDER_STATUS[o.status] }}</span>
+  </div>
+  <div class="order-body">
+    <div class="order-items">
+      {% for it in o.item_list %}
+      <div class="order-item"><span>{{ it.name }} × {{ it.qty }}</span><span>¥{{ '%.2f' % (it.price * it.qty) }}</span></div>
+      {% endfor %}
+    </div>
+    <div class="order-meta">
+      <div><span>金额</span><strong class="accent">¥{{ '%.2f' % o.total }}</strong></div>
+      <div><span>收货人</span>{{ o.customer_name }} · {{ o.phone }}</div>
+      <div><span>地址/备注</span>{{ o.address }}</div>
+      <div><span>下单时间</span>{{ o.created_at }}</div>
+      {% if o.paid_at %}<div><span>支付时间</span>{{ o.paid_at }}</div>{% endif %}
+      {% if o.confirmed_at %}<div><span>发货时间</span>{{ o.confirmed_at }}</div>{% endif %}
+    </div>
+  </div>
+  {% if o.status in ('unpaid', 'pending') %}
+  <div class="order-actions">
+    {% if o.status == 'pending' %}
+    <form method="post" action="{{ url_for('admin_confirm', order_no=o.order_no, status=active) }}"
+          onsubmit="return confirm('确认已收到转账（备注 {{ o.tail4 }}）并发货？');">
+      <button class="btn btn-primary btn-sm" type="submit">✓ 确认收款并发货</button>
+    </form>
+    {% endif %}
+    <form method="post" action="{{ url_for('admin_cancel', order_no=o.order_no, status=active) }}"
+          onsubmit="return confirm('确定取消该订单？');">
+      <button class="btn btn-danger btn-sm" type="submit">取消订单</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% endfor %}
+{% endblock %}

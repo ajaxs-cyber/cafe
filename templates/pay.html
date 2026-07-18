@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}订单支付 · 黑泡咖啡{% endblock %}
+{% block content %}
+<section class="section pay-section">
+  <div class="container narrow">
+    <div class="pay-card">
+      {% if order.status == 'pending' %}
+        <div class="pay-state pay-state-pending">
+          <div class="state-icon">⏳</div>
+          <h1>支付确认中</h1>
+          <p>我们已收到你的支付通知，将在核对转账备注后尽快发货。<br>可在「订单查询」页随时查看进度。</p>
+          <div class="order-no-line">订单号 <strong>{{ order.order_no }}</strong></div>
+          <a class="btn btn-primary" href="{{ url_for('track_page') }}">查询订单</a>
+        </div>
+      {% elif order.status == 'confirmed' %}
+        <div class="pay-state pay-state-confirmed">
+          <div class="state-icon">✅</div>
+          <h1>订单已发货</h1>
+          <p>这单咖啡已经在路上啦，感谢你对黑泡咖啡的喜欢。</p>
+          <div class="order-no-line">订单号 <strong>{{ order.order_no }}</strong></div>
+        </div>
+      {% elif order.status == 'cancelled' %}
+        <div class="pay-state pay-state-cancelled">
+          <div class="state-icon">✕</div>
+          <h1>订单已取消</h1>
+          <p>如有疑问请联系门店，或重新下单。</p>
+          <a class="btn btn-primary" href="{{ url_for('index') }}#products">重新选购</a>
+        </div>
+      {% else %}
+        <h1 class="pay-title">扫码支付</h1>
+        <p class="pay-order-no">订单号 <strong>{{ order.order_no }}</strong></p>
+
+        <div class="pay-amount">¥{{ '%.2f' % order.total }}</div>
+
+        <div class="pay-items">
+          {% for it in items %}
+          <div class="pay-item"><span>{{ it.name }} × {{ it.qty }}</span><span>¥{{ '%.2f' % (it.price * it.qty) }}</span></div>
+          {% endfor %}
+        </div>
+
+        <div class="qr-wrap">
+          {% if qr %}
+          <img class="qr-img" src="{{ url_for('static', filename='uploads/' ~ qr) }}" alt="收款码">
+          {% else %}
+          <div class="qr-placeholder">
+            <div class="qr-placeholder-icon">▦</div>
+            <p>收款码配置中<br><small>请稍后再试，或联系门店完成支付</small></p>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="pay-notice">
+          <p>请使用 <strong>微信 / 支付宝</strong> 扫码转账 <strong class="accent">¥{{ '%.2f' % order.total }}</strong></p>
+          <p>务必备注订单号后 4 位：<strong class="tail4" id="tail4">{{ tail4 }}</strong>
+            <button class="copy-btn" id="copyTail" type="button" data-copy="{{ tail4 }}">复制</button>
+          </p>
+          <p class="muted">备注后 4 位用于财务核对，缺少备注将延迟发货</p>
+        </div>
+
+        <div class="countdown" id="countdown" data-deadline="{{ deadline_ts }}">
+          支付剩余时间 <strong id="countdownText">30:00</strong>
+        </div>
+
+        {% if expired %}
+        <div class="pay-expired">订单已超时，请返回商城重新下单</div>
+        <a class="btn btn-ghost btn-block" href="{{ url_for('index') }}#products">重新选购</a>
+        {% else %}
+        <button class="btn btn-primary btn-block btn-lg" id="paidBtn" type="button">我已支付</button>
+        <p class="form-tip">点击「我已支付」后，订单进入「待确认」，财务核对备注后发货。</p>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+{% if order.status == 'unpaid' %}
+<script>
+  window.PAY_CONFIG = { orderNo: "{{ order.order_no }}", expired: {{ 'true' if expired else 'false' }} };
+</script>
+<script src="{{ url_for('static', filename='js/pay.js') }}"></script>
+{% endif %}
+{% endblock %}

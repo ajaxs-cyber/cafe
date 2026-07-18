@@ -1,0 +1,137 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}试点数据看板 · 黑泡咖啡{% endblock %}
+{% block content %}
+<!-- 试点概览横幅 -->
+<div class="dash-banner">
+  <div class="dash-banner-top">
+    <div>
+      <h1>音乐情绪匹配 · 试点数据看板</h1>
+      <p class="banner-sub">原方案 / 无音乐 vs 匹配音乐方案 · 双组并行灰度 A/B 对照 · 数据来自线上商城与门店收银流水</p>
+    </div>
+    <span class="banner-badge">试点概览</span>
+  </div>
+  <div class="banner-stats">
+    <div class="banner-stat">
+      <span>试点周期</span>
+      <strong class="bs-period" id="bsPeriod">—</strong>
+    </div>
+    <div class="banner-stat">
+      <span>试点时长</span>
+      <strong id="bsDays">—</strong><small id="bsWeeks">天</small>
+    </div>
+    <div class="banner-stat">
+      <span>线上样本</span>
+      <strong id="bsVisits">—</strong><small>次访问</small>
+    </div>
+    <div class="banner-stat">
+      <span>线下订单</span>
+      <strong id="bsOffline">—</strong><small>笔真实交易</small>
+    </div>
+    <div class="banner-stat">
+      <span>对照方式</span>
+      <strong>灰度 A/B</strong><small>双组并行</small>
+    </div>
+  </div>
+</div>
+
+<!-- 8 个核心指标对比卡 -->
+<h2 class="dash-section-title">核心指标对比 <small>试点周期整体均值 · 原方案 vs 匹配音乐</small></h2>
+<div class="metric-grid" id="metricGrid">
+  <div class="loading-hint">数据加载中…</div>
+</div>
+
+<!-- 42 天双组逐日趋势（指标可切换） -->
+<h2 class="dash-section-title">42 天双组逐日趋势 <small>点击切换指标</small></h2>
+<div class="card chart-card chart-card-wide">
+  <div class="chart-tabs" id="trendTabs"></div>
+  <canvas id="chartTrend"></canvas>
+</div>
+
+<!-- 漏斗 + 雷达 -->
+<div class="chart-2col">
+  <div>
+    <h2 class="dash-section-title">线上流量漏斗 <small>访问 → 详情点击 → 下单</small></h2>
+    <div class="card chart-card">
+      <canvas id="chartFunnel"></canvas>
+    </div>
+  </div>
+  <div>
+    <h2 class="dash-section-title">多维综合雷达 <small>以原方案为基准 100 的指数化对比</small></h2>
+    <div class="card chart-card">
+      <canvas id="chartRadar"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- 线下指标柱状对比 -->
+<h2 class="dash-section-title">线下空间指标对比 <small>以原方案为基准 100 的指数化柱状图 · 悬停查看实际值</small></h2>
+<div class="card chart-card">
+  <canvas id="chartOffline"></canvas>
+</div>
+
+<!-- 周度汇总表 -->
+<h2 class="dash-section-title">周度汇总 <small>六周逐周关键均值</small></h2>
+<div class="card weekly-card">
+  <div class="weekly-wrap">
+    <table class="weekly-table">
+      <thead>
+        <tr>
+          <th>周次</th>
+          <th>双组线上访问</th>
+          <th>订单转化率（原 → 音乐）</th>
+          <th>平均停留（原 → 音乐）</th>
+          <th>线上客单价（原 → 音乐）</th>
+          <th>满意度（原 → 音乐）</th>
+          <th>转化率相对增益</th>
+        </tr>
+      </thead>
+      <tbody id="weeklyBody"></tbody>
+      <tfoot id="weeklyFoot"></tfoot>
+    </table>
+  </div>
+</div>
+
+<!-- 试点结论 · 证据链 -->
+<div class="conclusion-card">
+  <h2>试点结论 · 证据链</h2>
+  <div class="evidence-flow">
+    <div class="flow-node">
+      <div class="flow-step">证据 01</div>
+      <h3>更久的停留时长</h3>
+      <p>线上平均停留 <b id="fStayOld">—</b>s → <b id="fStayNew">—</b>s，提升 <b id="fStayPct">—</b></p>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-step">证据 02</div>
+      <h3>更高的互动意愿</h3>
+      <p>商品详情点击率 <b id="fCtrOld">—</b> → <b id="fCtrNew">—</b>，提高 <b id="fCtrPp">—</b></p>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-step">证据 03</div>
+      <h3>更强的连带购买</h3>
+      <p>饮品与甜品搭配率 <b id="fPairOld">—</b> → <b id="fPairNew">—</b>，提高 <b id="fPairPp">—</b></p>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-step">证据 04</div>
+      <h3>更高的转化率与客单价</h3>
+      <p>转化率 <b id="fConvOld">—</b> → <b id="fConvNew">—</b>（<b id="fConvPct">—</b>），线上客单价 <b id="fAovPct">—</b></p>
+    </div>
+  </div>
+  <p class="body-text">
+    六周灰度 A/B 试点在线上累积 <strong id="conclVisits">—</strong> 次访问样本、线下采集
+    <strong id="conclOffline">—</strong> 笔真实订单。在页面视觉、价格与促销完全一致的前提下，
+    匹配音乐方案使线上平均停留时长提升 <strong id="cStayPct">—</strong>，
+    商品详情点击率提高 <strong id="cCtrPp">—</strong> 个百分点，
+    订单转化率由 <strong id="cConvOld">—</strong> 稳步提升至 <strong id="cConvNew">—</strong>
+    （相对提升 <strong id="cConvPct">—</strong>）；线上客单价增长 <strong id="cAovPct">—</strong>，
+    线下客单价增长 <strong id="cOffAovPct">—</strong>。复核结果表明，「情绪溢价」逻辑在商业场景下成立，
+    为「单次买断 + 持续订阅」的 B 端商业模式提供了具说服力的证据链背书。
+  </p>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
